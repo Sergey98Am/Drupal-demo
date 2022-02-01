@@ -1,0 +1,7 @@
+contact_form.content:
+  path: '/custom-contact'
+  defaults:
+    _controller: '\Drupal\contact_form\Controller\ContactController::content'
+    _title: 'Contact'
+  requirements:
+    _role: 'authenticated'

@@ -1,0 +1,26 @@
+.custom-contact-form .title,
+.custom-contact-form .subject,
+.custom-contact-form .message {
+  margin: 10px 0;
+}
+
+.custom-contact-form .title {
+  color: #0a6eb4 !important;
+  font-size: 25px;
+}
+
+.custom-contact-form ul {
+  padding: 0;
+  list-style: none;
+}
+
+.custom-contact-form ul li {
+  border: 2px solid darkgray;
+  border-radius: 15px;
+  width: 100%;
+  padding: 15px;
+}
+
+.custom-contact-form ul li:not(:last-child) {
+  margin-bottom: 20px;
+}

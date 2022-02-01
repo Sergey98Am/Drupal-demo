@@ -1,0 +1,17 @@
+<?php
+
+function contact_form_page_attachments(array &$page) {
+  $page['#attached']['library'][] = 'contact_form/custom_css';
+}
+
+function contact_form_theme($existing, $type, $theme, $path) {
+
+  return [
+    'contact' => [
+      'variables' => [
+        'result' => []
+      ],
+    ],
+  ];
+
+}

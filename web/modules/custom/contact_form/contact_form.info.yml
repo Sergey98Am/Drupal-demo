@@ -1,0 +1,4 @@
+name: 'Contact Form'
+type: module
+package: custom
+core_version_requirement: ^8.8 || ^9

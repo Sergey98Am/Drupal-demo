@@ -1,0 +1,20 @@
+uuid: 6d73324a-d6ab-4db6-b180-3c09787f1860
+langcode: en
+status: true
+dependencies:
+  module:
+    - contact_form
+  theme:
+    - bartik
+id: contactformblock
+theme: bartik
+region: footer_fifth
+weight: 0
+provider: null
+plugin: contact_form_block
+settings:
+  id: contact_form_block
+  label: 'Contact Form Block'
+  label_display: visible
+  provider: contact_form
+visibility: {  }

@@ -2,6 +2,14 @@
 #
 # earlier versions of Drupal are tracked in `community/PHP/`
 
+/drush/Commands/contrib/
+/web/core/
+/web/modules/contrib/
+/web/themes/contrib/
+/web/profiles/contrib/
+/web/libraries/contrib/
+/web/private/scripts/quicksilver
+
 # Ignore configuration files that may contain sensitive information
 /sites/*/*settings*.php
 /sites/*/*services*.yml

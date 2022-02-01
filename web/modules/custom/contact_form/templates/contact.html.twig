@@ -1,0 +1,11 @@
+<div class="custom-contact-form">
+  <ul>
+    {% for item in result %}
+      <li>
+        <h1 class="title">{{ item.name }}</h1>
+        <h2 class="subject">{{ item.subject }}</h2>
+        <p class="message">{{ item.message }}</p>
+      </li>
+    {% endfor %}
+  </ul>
+</div>
