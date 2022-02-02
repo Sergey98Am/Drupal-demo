@@ -12,12 +12,12 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a Media block.
+ * Provides a Contact block.
  *
  * @Block(
  *   id = "contact_form_block",
  *   admin_label = @Translation("Contact Form Block"),
- *   category = @Translation("Custom Contact Form Block example")
+ *   category = @Translation("Custom Contact Form Block")
  * )
  */
 class ContactFormBlock extends BlockBase implements ContainerFactoryPluginInterface {
