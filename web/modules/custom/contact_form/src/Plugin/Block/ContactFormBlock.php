@@ -12,7 +12,7 @@ use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Provides a Contact block.
+ * Provides a Contact Form block.
  *
  * @Block(
  *   id = "contact_form_block",
