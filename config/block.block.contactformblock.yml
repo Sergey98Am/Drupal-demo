@@ -9,7 +9,7 @@ dependencies:
 id: contactformblock
 theme: bartik
 region: footer_fifth
-weight: 0
+weight: -6
 provider: null
 plugin: contact_form_block
 settings:

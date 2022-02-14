@@ -1,0 +1,25 @@
+uuid: 42fedbe7-3333-4b64-8986-c4006595fe02
+langcode: en
+status: true
+dependencies:
+  module:
+    - social_media
+  theme:
+    - bartik
+id: socialmedia_3
+theme: bartik
+region: primary_menu
+weight: 0
+provider: null
+plugin: block_social_media
+settings:
+  id: block_social_media
+  label: 'Social Media'
+  label_display: visible
+  provider: social_media
+  social_fieldset:
+    0:
+      name: Facebook
+      link: 'https://www.facebook.com/'
+    actions: {  }
+visibility: {  }

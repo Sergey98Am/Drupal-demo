@@ -1,0 +1,45 @@
+uuid: 93b030df-66e3-499f-b315-f3e58d07ca08
+langcode: en
+status: true
+dependencies:
+  module:
+    - social_media
+  theme:
+    - bartik
+id: socialmedia_2
+theme: bartik
+region: header
+weight: 0
+provider: null
+plugin: block_social_media
+settings:
+  id: block_social_media
+  label: 'Social Media'
+  label_display: visible
+  provider: social_media
+  hello_block_name:
+    0:
+      name: Facebook
+      link: 'https://www.facebook.com/'
+    1:
+      name: Instagram
+      link: 'https://www.instagram.com/'
+    2:
+      name: Twitter
+      link: 'https://twitter.com/'
+    actions: {  }
+  social_fieldset:
+    0:
+      name: Facebook
+      link: 'http://drupal-demo.loc/admin/structure/block/manage/socialmedia_2?destination=/admin/structure/block'
+    1:
+      name: Instagram
+      link: 'http://drupal-demo.loc/admin/structure/block/manage/socialmedia_2?destination=/admin/structure/block'
+    2:
+      name: Twitter
+      link: 'https://www.twitter.com/'
+    3:
+      name: Linkedin
+      link: 'https://www.linkedin.com/'
+    actions: {  }
+visibility: {  }

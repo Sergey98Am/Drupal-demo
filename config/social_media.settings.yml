@@ -1,0 +1,8 @@
+name: null
+link: null
+global_fieldset:
+  0:
+    name: Drupal
+    link: 'http://drupal-demo.loc/admin/config/social_media/config/'
+  actions:
+    add_site: 'Add one more'
