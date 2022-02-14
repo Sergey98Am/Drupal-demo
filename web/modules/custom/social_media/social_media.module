@@ -1,11 +1,20 @@
 <?php
 
+function social_media_page_attachments(array &$page) {
+  $page['#attached']['library'][] = 'social_media/custom_css';
+}
+
 /**
  * Implements hook_theme().
  */
 function social_media_theme() {
   return [
     'social_media' => [
+      'variables' => [
+        'social_links' => [],
+      ],
+    ],
+    'social_media_global' => [
       'variables' => [
         'social_links' => [],
       ],

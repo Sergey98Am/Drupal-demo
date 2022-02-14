@@ -1,0 +1,6 @@
+social_media.social_config_form:
+  title: 'Social Media (global form)'
+  route_name: social_media.social_config_form
+  description: 'A description for the menu entry'
+  parent: system.admin_config_system
+  weight: 99
