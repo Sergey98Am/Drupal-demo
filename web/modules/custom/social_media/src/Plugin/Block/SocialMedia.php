@@ -22,6 +22,8 @@ class SocialMedia extends BlockBase implements ContainerFactoryPluginInterface {
   public $social_media = [];
 
   public $messenger;
+  protected $formNameDB = 'sites';
+  protected $fieldsetName = 'fieldset';
 
   /**
    * {@inheritdoc}
@@ -61,22 +63,22 @@ class SocialMedia extends BlockBase implements ContainerFactoryPluginInterface {
   public function blockForm($form, FormStateInterface $form_state) {
     $form = parent::blockForm($form, $form_state);
 
-    $sites = $form_state->get('sites');
+    $sites = $form_state->get($this->formNameDB);
     $social_fieldset = $this->configuration['social_fieldset'];
     $count_social_fieldset = count($social_fieldset) - 1;
 
     if ($sites === NULL) {
       if (empty($social_fieldset)) {
-        $form_state->set('sites', 1);
+        $form_state->set($this->formNameDB, 1);
         $sites = 1;
       } else {
-        $form_state->set('sites', $count_social_fieldset);
+        $form_state->set($this->formNameDB, $count_social_fieldset);
         $sites = $count_social_fieldset;
       }
     }
 
     $form['#tree'] = TRUE;
-    $form['fieldset'] = [
+    $form[$this->fieldsetName] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Sites'),
       '#prefix' => '<div id="names-fieldset-wrapper">',
@@ -84,19 +86,19 @@ class SocialMedia extends BlockBase implements ContainerFactoryPluginInterface {
     ];
 
     for ($site = 0; $site < $sites; $site++) {
-      $form['fieldset'][$site] = [
+      $form[$this->fieldsetName][$site] = [
         '#type' => 'fieldset',
         '#title' => $this->t('Site ') . ' ' . ($site + 1),
       ];
 
-      $form['fieldset'][$site]['name'] = [
+      $form[$this->fieldsetName][$site]['name'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Name'),
         '#required' => true,
         '#default_value' => $social_fieldset[$site]['name'] ?? '',
       ];
 
-      $form['fieldset'][$site]['link'] = [
+      $form[$this->fieldsetName][$site]['link'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Link'),
         '#required' => true,
@@ -105,10 +107,10 @@ class SocialMedia extends BlockBase implements ContainerFactoryPluginInterface {
       ];
     }
 
-    $form['fieldset']['actions'] = [
+    $form[$this->fieldsetName]['actions'] = [
       '#type' => 'actions',
     ];
-    $form['fieldset']['actions']['add_site'] = [
+    $form[$this->fieldsetName]['actions']['add_site'] = [
       '#type' => 'submit',
       '#value' => $this->t('Add one more'),
       '#limit_validation_errors' => [],
@@ -120,7 +122,7 @@ class SocialMedia extends BlockBase implements ContainerFactoryPluginInterface {
     ];
 
     if ($sites > 1) {
-      $form['fieldset']['actions']['remove_site'] = [
+      $form[$this->fieldsetName]['actions']['remove_site'] = [
         '#type' => 'submit',
         '#value' => $this->t('Remove one'),
         '#limit_validation_errors' => [],
@@ -151,7 +153,7 @@ class SocialMedia extends BlockBase implements ContainerFactoryPluginInterface {
    * Selects and returns the fieldset with the names in it.
    */
   public function siteCallback(array &$form, FormStateInterface $form_state) {
-    return $form['settings']['fieldset'];
+    return $form['settings'][$this->fieldsetName];
   }
 
   /**
@@ -160,9 +162,9 @@ class SocialMedia extends BlockBase implements ContainerFactoryPluginInterface {
    * Increments the max counter and causes a rebuild.
    */
   public function addOneSite(array &$form, FormStateInterface $form_state) {
-    $name_field = $form_state->get('sites');
+    $name_field = $form_state->get($this->formNameDB);
     $add_button = $name_field + 1;
-    $form_state->set('sites', $add_button);
+    $form_state->set($this->formNameDB, $add_button);
     $form_state->setRebuild();
   }
 
@@ -172,10 +174,10 @@ class SocialMedia extends BlockBase implements ContainerFactoryPluginInterface {
    * Decrements the max counter and causes a form rebuild.
    */
   public function removeOneSite(array &$form, FormStateInterface $form_state) {
-    $name_field = $form_state->get('sites');
+    $name_field = $form_state->get($this->formNameDB);
     if ($name_field > 1) {
       $remove_button = $name_field - 1;
-      $form_state->set('sites', $remove_button);
+      $form_state->set($this->formNameDB, $remove_button);
     }
     $form_state->setRebuild();
   }
@@ -187,7 +189,7 @@ class SocialMedia extends BlockBase implements ContainerFactoryPluginInterface {
     parent::blockSubmit($form, $form_state);
     $values = $form_state->getValues();
 
-    $this->configuration['social_fieldset'] = $values['fieldset'];
+    $this->configuration['social_fieldset'] = $values[$this->fieldsetName];
   }
 
   /**

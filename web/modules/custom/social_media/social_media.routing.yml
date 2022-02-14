@@ -2,6 +2,6 @@ social_media.social_config_form:
   path: '/admin/config/social_media/config'
   defaults:
     _form: '\Drupal\social_media\Form\SocialConfigForm'
-    _title: 'Simple Configuration'
+    _title: 'Social Media Configuration'
   requirements:
     _permission: 'administer site configuration'

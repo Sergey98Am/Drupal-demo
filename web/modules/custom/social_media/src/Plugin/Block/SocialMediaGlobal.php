@@ -7,7 +7,6 @@ use Drupal\Core\Config\ConfigFactory;
 use Drupal\Core\Plugin\ContainerFactoryPluginInterface;
 use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\Core\Extension\ModuleHandlerInterface;
 
 /**
  * Provides a Media block.
@@ -60,7 +59,6 @@ class SocialMediaGlobal extends BlockBase implements ContainerFactoryPluginInter
    */
   public function build() {
     $social_fieldset = $this->configFactory->get('social_media.settings')->get('global_fieldset');
-//    $social_fieldset = $this->configFactory->getEditable('social_media.settings')->get('global_fieldset');
     foreach ($social_fieldset as $key => $item) {
       if ($key !== 'actions') {
         $name = $item['name'];
