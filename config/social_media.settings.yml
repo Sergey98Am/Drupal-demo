@@ -1,6 +1,7 @@
 global_fieldset:
   0:
-    name: dsadasdsat
+    name: facebook
     link: 'http://drupal-demo.loc/admin/config/social_media/config'
   actions:
     add_site: 'Add one more'
+all_info: {  }

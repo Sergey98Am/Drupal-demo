@@ -1,0 +1,20 @@
+uuid: 89a24671-5e0d-496c-8cb6-adaeb4b97ee2
+langcode: en
+status: true
+dependencies:
+  module:
+    - social_media
+  theme:
+    - bartik
+id: socialmediaglobal
+theme: bartik
+region: content
+weight: 0
+provider: null
+plugin: block_social_media_global
+settings:
+  id: block_social_media_global
+  label: 'Social Media Global'
+  label_display: visible
+  provider: social_media
+visibility: {  }

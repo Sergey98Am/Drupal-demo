@@ -6,6 +6,24 @@ function social_media_page_attachments(array &$page) {
   $page['#attached']['library'][] = 'social_media/custom_css';
 }
 
+/**
+ * Implements hook_theme().
+ */
+function social_media_theme() {
+  return [
+    'social_media' => [
+      'variables' => [
+        'social_links' => [],
+      ],
+    ],
+    'social_media_global' => [
+      'variables' => [
+        'social_links' => [],
+      ],
+    ],
+  ];
+}
+
 function social_media_form_system_site_information_settings_alter(&$form, &$form_state) {
   $sites = $form_state->get('sites_global');
   $social_fieldset = Drupal::config('social_media.settings')->get('global_fieldset');
@@ -21,8 +39,8 @@ function social_media_form_system_site_information_settings_alter(&$form, &$form
     }
   }
 
-  $form['#tree'] = TRUE;
   $form['global_fieldset'] = [
+    '#tree' => TRUE,
     '#type' => 'fieldset',
     '#title' => t('Sites'),
     '#prefix' => '<div id="names-fieldset-wrapper">',
@@ -78,11 +96,11 @@ function social_media_form_system_site_information_settings_alter(&$form, &$form
     ];
   }
 
-
-  $form['actions']['submit']['#submit'][] = 'social_media_form_submit';
+  $form['#submit'][] = 'social_media_form_submit';
 }
 
 function social_media_form_submit(array &$form, FormStateInterface $form_state) {
+
   $values = $form_state->getValues();
 
   Drupal::service('config.factory')
@@ -128,22 +146,4 @@ function social_media_remove_one_site(array &$form, FormStateInterface $form_sta
     $form_state->set('sites_global', $remove_button);
   }
   $form_state->setRebuild();
-}
-
-/**
- * Implements hook_theme().
- */
-function social_media_theme() {
-  return [
-    'social_media' => [
-      'variables' => [
-        'social_links' => [],
-      ],
-    ],
-    'social_media_global' => [
-      'variables' => [
-        'social_links' => [],
-      ],
-    ],
-  ];
 }
