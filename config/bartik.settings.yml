@@ -1,0 +1,12 @@
+favicon:
+  mimetype: image/png
+  path: 'public://images/Favicon.png'
+  use_default: false
+features:
+  comment_user_picture: true
+  comment_user_verification: true
+  favicon: true
+  node_user_picture: true
+logo:
+  path: 'public://images/logo.png'
+  use_default: false

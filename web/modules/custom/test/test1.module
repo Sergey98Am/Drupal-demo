@@ -1,0 +1,137 @@
+<?php
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Database\Database;
+
+
+function test1_form_alter(&$form, &$form_state, $form_id)
+{
+  if ($form_id == 'system_site_information_settings') {
+
+    $config = Drupal::config('test1.settings');
+
+    $num_names = $form_state->get('num_names');
+
+    if ($num_names === NULL) {
+      $num_names = 2;
+      $name_field = $form_state->set('num_names', 2);
+      $form_state->setRebuild();
+    }
+
+    $form['#tree'] = TRUE;
+    $form['names_fieldset'] = [
+      '#type' => 'fieldset',
+      '#title' => 'Site name',
+      '#prefix' => '<div id="names-fieldset-wrapper">',
+      '#suffix' => '</div>',
+    ];
+
+    for ($i = 0; $i < $num_names; $i++) {
+      $form['names_fieldset'][$i] = [
+        '#type' => 'fieldset',
+        '#title' => 'Site ' . ' ' . ($i + 1),
+
+      ];
+      $form['names_fieldset'][$i]['name'] = [
+        '#type' => 'textfield',
+        '#title' => 'Name',
+        '#required_but_empty' => 'Please enter Name',
+        '#required' => TRUE,
+      ];
+
+      $form['names_fieldset'][$i]['link'] = [
+        '#type' => 'textfield',
+        '#title' => 'Link',
+        '#required_but_empty' => 'Please enter Link',
+        '#required' => TRUE,
+      ];
+    }
+
+    $form['names_fieldset']['actions'] = [
+      '#type' => 'actions',
+    ];
+    $form['actions']['#type'] = 'actions';
+    $form['#submit'][] = 'upup_taxonomy_form_submit';
+
+    $form['names_fieldset']['actions']['add_name'] = [
+      '#type' => 'submit',
+      '#value' => 'Add ',
+      '#submit' => ['addOneBlock'],
+      '#ajax' => [
+        'callback' => 'addmoreSiteCallback',
+        'wrapper' => 'names-fieldset-wrapper',
+      ],
+    ];
+    // If there is more than one name, add the remove button.
+    if ($num_names > 1) {
+      $form['names_fieldset']['actions']['remove_name'] = [
+        '#type' => 'submit',
+        '#value' => 'Remove ',
+        '#submit' => ['removeCallback'],
+        '#ajax' => [
+          'callback' => 'addmoreSiteCallback',
+          'wrapper' => 'names-fieldset-wrapper',
+        ],
+      ];
+    }
+
+    $conn = Database::getConnection();
+
+  }
+  return $form;
+
+}
+function upup_taxonomy_form_submit(&$form, &$form_state){
+
+  try{
+    $conn = Database::getConnection();
+
+    $field = $form_state->getValues();
+    dump($field);
+    $fields["name"] = $field['name'];
+    $fields["subject"] = $field['subject'];
+    $fields["message"] = $field['message'];
+
+    $conn->insert('contact_info')
+      ->fields($fields)->execute();
+    \Drupal::messenger()->addMessage('The Student data has been succesfully saved');
+
+  } catch(Exception $ex){
+    dump($ex);
+  }
+
+}
+
+function addOneBlock(array &$form, FormStateInterface $form_state)
+{
+  $name_field = $form_state->get('num_names');
+  $add_button = $name_field + 1;
+  $form_state->set('num_names', $add_button);
+  $form_state->setRebuild();
+}
+
+/**
+ * Callback method for ...
+ * @param array $form
+ * @param FormStateInterface $form_state
+ * @return mixed
+ */
+function addmoreSiteCallback(array &$form, FormStateInterface $form_state)
+{
+  return $form['names_fieldset'];
+}
+
+//remove block if block count > 1
+function removeCallback(array &$form, FormStateInterface $form_state)
+{
+  $name_field = $form_state->get('num_names');
+  if ($name_field > 1) {
+    $remove_button = $name_field - 1;
+    $form_state->set('num_names', $remove_button);
+  }
+  $form_state->setRebuild();
+}
+
+
+
+
+

@@ -1,7 +1,133 @@
 <?php
 
+use Drupal\Core\Form\FormStateInterface;
+
 function social_media_page_attachments(array &$page) {
   $page['#attached']['library'][] = 'social_media/custom_css';
+}
+
+function social_media_form_system_site_information_settings_alter(&$form, &$form_state) {
+  $sites = $form_state->get('sites_global');
+  $social_fieldset = Drupal::config('social_media.settings')->get('global_fieldset');
+  $count_social_fieldset = count($social_fieldset) - 1;
+
+  if ($sites === NULL) {
+    if (empty($social_fieldset)) {
+      $form_state->set('sites_global', 1);
+      $sites = 1;
+    } else {
+      $form_state->set('sites_global', $count_social_fieldset);
+      $sites = $count_social_fieldset;
+    }
+  }
+
+  $form['#tree'] = TRUE;
+  $form['global_fieldset'] = [
+    '#type' => 'fieldset',
+    '#title' => t('Sites'),
+    '#prefix' => '<div id="names-fieldset-wrapper">',
+    '#suffix' => '</div>',
+  ];
+
+  for ($site = 0; $site < $sites; $site++) {
+    $form['global_fieldset'][$site] = [
+      '#type' => 'fieldset',
+      '#title' => t('Site ') . ' ' . ($site + 1),
+    ];
+
+    $form['global_fieldset'][$site]['name'] = [
+      '#type' => 'textfield',
+      '#title' => t('Name'),
+      '#required' => TRUE,
+      '#default_value' => $social_fieldset[$site]['name'] ?? '',
+    ];
+
+    $form['global_fieldset'][$site]['link'] = [
+      '#type' => 'textfield',
+      '#title' => t('Link'),
+      '#required' => TRUE,
+      '#element_validate' => ['social_media_validate_link_field'],
+      '#default_value' => $social_fieldset[$site]['link'] ?? '',
+    ];
+  }
+
+  $form['global_fieldset']['actions'] = [
+    '#type' => 'actions',
+  ];
+  $form['global_fieldset']['actions']['add_site'] = [
+    '#type' => 'submit',
+    '#value' => t('Add one more'),
+    '#limit_validation_errors' => [],
+    '#submit' => ['social_media_add_one_site'],
+    '#ajax' => [
+      'callback' => 'social_media_ajax_callback',
+      'wrapper' => 'names-fieldset-wrapper',
+    ],
+  ];
+
+  if ($sites > 1) {
+    $form['global_fieldset']['actions']['remove_site'] = [
+      '#type' => 'submit',
+      '#value' => t('Remove one'),
+      '#limit_validation_errors' => [],
+      '#submit' => ['social_media_remove_one_site'],
+      '#ajax' => [
+        'callback' => 'social_media_ajax_callback',
+        'wrapper' => 'names-fieldset-wrapper',
+      ],
+    ];
+  }
+
+
+  $form['actions']['submit']['#submit'][] = 'social_media_form_submit';
+}
+
+function social_media_form_submit(array &$form, FormStateInterface $form_state) {
+  $values = $form_state->getValues();
+
+  Drupal::service('config.factory')
+    ->getEditable('social_media.settings')
+    ->set('global_fieldset', $values['global_fieldset'])
+    ->save();
+}
+
+/**
+ * Callback for both ajax-enabled buttons.
+ *
+ * Selects and returns the fieldset with the names in it.
+ */
+function social_media_ajax_callback(array &$form, FormStateInterface $form_state) {
+  return $form['global_fieldset'];
+}
+
+/**
+ * Form Validation
+ */
+function social_media_validate_link_field($element, &$form_state, $form) {
+  if (!filter_var($element['#value'], FILTER_VALIDATE_URL)) {
+    $form_state->setError($element, t('Please enter a valid Website URL'));
+  }
+}
+
+/**
+ * Submit handler for the "add-one-site" button.
+ *
+ * Increments the max counter and causes a rebuild.
+ */
+function social_media_add_one_site(array &$form, FormStateInterface $form_state) {
+  $name_field = $form_state->get('sites_global');
+  $add_button = $name_field + 1;
+  $form_state->set('sites_global', $add_button);
+  $form_state->setRebuild();
+}
+
+function social_media_remove_one_site(array &$form, FormStateInterface $form_state) {
+  $name_field = $form_state->get('sites_global');
+  if ($name_field > 1) {
+    $remove_button = $name_field - 1;
+    $form_state->set('sites_global', $remove_button);
+  }
+  $form_state->setRebuild();
 }
 
 /**

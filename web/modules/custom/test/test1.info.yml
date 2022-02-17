@@ -1,0 +1,4 @@
+name: test1
+description: Social Custom Modrule
+type: module
+core_version_requirement: ^9
