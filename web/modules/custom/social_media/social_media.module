@@ -1,5 +1,6 @@
 <?php
 
+use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Form\FormStateInterface;
 
 function social_media_page_attachments(array &$page) {
@@ -25,18 +26,26 @@ function social_media_theme() {
 }
 
 function social_media_form_system_site_information_settings_alter(&$form, &$form_state) {
-  $sites = $form_state->get('sites_global');
-  $social_fieldset = Drupal::config('social_media.settings')->get('global_fieldset');
-  $count_social_fieldset = count($social_fieldset) - 1;
+  $sites = $form_state->get('count');
+  $social_fieldset = Drupal::config('social_media.settings')
+    ->get('global_fieldset');
+  $count_social_fieldset = count($social_fieldset);
 
   if ($sites === NULL) {
     if (empty($social_fieldset)) {
-      $form_state->set('sites_global', 1);
-      $sites = 1;
-    } else {
-      $form_state->set('sites_global', $count_social_fieldset);
-      $sites = $count_social_fieldset;
+      $form_state->set('count', 1);
+      $sites = $form_state->get('count');
     }
+    else {
+      $form_state->set('count', $count_social_fieldset);
+      $sites = $form_state->get('count');
+    }
+  }
+
+  $removed_fields = $form_state->get('removed_fields');
+  if ($removed_fields === NULL) {
+    $form_state->set('removed_fields', []);
+    $removed_fields = $form_state->get('removed_fields');
   }
 
   $form['global_fieldset'] = [
@@ -48,24 +57,40 @@ function social_media_form_system_site_information_settings_alter(&$form, &$form
   ];
 
   for ($site = 0; $site < $sites; $site++) {
-    $form['global_fieldset'][$site] = [
+    if (in_array($site, $removed_fields)) {
+      continue;
+    }
+
+    $form['global_fieldset']['inputs'][$site] = [
       '#type' => 'fieldset',
       '#title' => t('Site ') . ' ' . ($site + 1),
     ];
 
-    $form['global_fieldset'][$site]['name'] = [
+    $form['global_fieldset']['inputs'][$site]['name'] = [
       '#type' => 'textfield',
       '#title' => t('Name'),
       '#required' => TRUE,
       '#default_value' => $social_fieldset[$site]['name'] ?? '',
     ];
 
-    $form['global_fieldset'][$site]['link'] = [
+    $form['global_fieldset']['inputs'][$site]['link'] = [
       '#type' => 'textfield',
       '#title' => t('Link'),
       '#required' => TRUE,
       '#element_validate' => ['social_media_validate_link_field'],
       '#default_value' => $social_fieldset[$site]['link'] ?? '',
+    ];
+
+    $form['global_fieldset']['inputs'][$site]['actions']['remove_site'] = [
+      '#type' => 'submit',
+      '#value' => t('Remove one'),
+      '#submit' => ['social_media_remove_one_site'],
+      '#limit_validation_errors' => [],
+      '#name' => "remove_$site",
+      '#ajax' => [
+        'callback' => 'social_media_ajax_callback',
+        'wrapper' => 'names-fieldset-wrapper',
+      ],
     ];
   }
 
@@ -74,7 +99,7 @@ function social_media_form_system_site_information_settings_alter(&$form, &$form
   ];
   $form['global_fieldset']['actions']['add_site'] = [
     '#type' => 'submit',
-    '#value' => t('Add one more'),
+    '#value' => t('Add Site'),
     '#limit_validation_errors' => [],
     '#submit' => ['social_media_add_one_site'],
     '#ajax' => [
@@ -83,29 +108,18 @@ function social_media_form_system_site_information_settings_alter(&$form, &$form
     ],
   ];
 
-  if ($sites > 1) {
-    $form['global_fieldset']['actions']['remove_site'] = [
-      '#type' => 'submit',
-      '#value' => t('Remove one'),
-      '#limit_validation_errors' => [],
-      '#submit' => ['social_media_remove_one_site'],
-      '#ajax' => [
-        'callback' => 'social_media_ajax_callback',
-        'wrapper' => 'names-fieldset-wrapper',
-      ],
-    ];
-  }
-
   $form['#submit'][] = 'social_media_form_submit';
+
+  return $form;
 }
 
 function social_media_form_submit(array &$form, FormStateInterface $form_state) {
-
   $values = $form_state->getValues();
+  $global_fieldset = $values['global_fieldset'];
+  $social_media_settings = Drupal::service('config.factory')
+    ->getEditable('social_media.settings');
 
-  Drupal::service('config.factory')
-    ->getEditable('social_media.settings')
-    ->set('global_fieldset', $values['global_fieldset'])
+  $social_media_settings->set('global_fieldset', array_values($global_fieldset['inputs']))
     ->save();
 }
 
@@ -133,17 +147,30 @@ function social_media_validate_link_field($element, &$form_state, $form) {
  * Increments the max counter and causes a rebuild.
  */
 function social_media_add_one_site(array &$form, FormStateInterface $form_state) {
-  $name_field = $form_state->get('sites_global');
+  $name_field = $form_state->get('count');
   $add_button = $name_field + 1;
-  $form_state->set('sites_global', $add_button);
+  $form_state->set('count', $add_button);
   $form_state->setRebuild();
 }
 
 function social_media_remove_one_site(array &$form, FormStateInterface $form_state) {
-  $name_field = $form_state->get('sites_global');
-  if ($name_field > 1) {
-    $remove_button = $name_field - 1;
-    $form_state->set('sites_global', $remove_button);
-  }
+  $trigger = $form_state->getTriggeringElement();
+  $indexToRemove = $trigger['#name'];
+  $indexToRemove = preg_replace('~\D~', '', $indexToRemove);
+
+  $global_fieldset = $form['global_fieldset'];
+  unset($global_fieldset['inputs'][$indexToRemove]);
+
+  $social_media_settings = Drupal::service('config.factory')
+    ->getEditable('social_media.settings');
+
+  $removed_fields = $form_state->get('removed_fields');
+  $removed_fields[] = $indexToRemove;
+  $form_state->set('removed_fields', $removed_fields);
+
   $form_state->setRebuild();
+
+  $social_media_settings->clear("global_fieldset.$indexToRemove");
+  $rearranged_index = array_values($social_media_settings->get('global_fieldset'));
+  $social_media_settings->set('global_fieldset', $rearranged_index)->save();
 }
